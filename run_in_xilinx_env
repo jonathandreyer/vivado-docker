@@ -1,0 +1,24 @@
+#!/bin/bash
+
+COMMAND="$(basename $0)"
+ENVIRONMENT_FILES=`find /opt/Xilinx -maxdepth 3 -name settings64.sh`
+
+# check if the script has been symlinked to the actual command name
+if [ ! -L $0 ]; then
+  # no symlink -> use the first parameter is the command command
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 <COMMAND> [COMMAND_ARGUMENTS...]"
+    echo "Alternatively, if this script is started via a symlink the name of the link is used as command."
+    exit -1
+  fi
+  COMMAND=$1
+  shift;
+fi
+
+# source all environment files
+for f in $ENVIRONMENT_FILES; do
+  source $f
+done
+
+# run the actual command in the new environment
+bash -c "$COMMAND $*"

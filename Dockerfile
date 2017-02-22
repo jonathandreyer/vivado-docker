@@ -1,25 +1,21 @@
 FROM ubuntu:16.04
 
-MAINTAINER Colm Ryan <cryan@bbn.com>
+LABEL maintainer Mario Werner <mario.werner@iaik.tugraz.at>
 
-# build with docker build --build-arg VIVADO_TAR_HOST=host:port --build-arg VIVADO_TAR_FILE=Xilinx_Vivado_SDK_2016.3_1011_1 -t vivado .
-
-#install dependences for:
-# * downloading Vivado (wget)
-# * xsim (gcc build-essential to also get make)
-# * MIG tool (libglib2.0-0 libsm6 libxi6 libxrender1 libxrandr2 libfreetype6 libfontconfig)
-# * CI (git)
+#install dependencies:
+# * wget -> to fetch the vivado file from a server
+# * build-essential, cmake, git, python3 -> (gcc/g++/make/... for building high level models and for scripting)
+# * libx... -> to make the installer and the gui tools happy
 RUN apt-get update && apt-get install -y \
-  wget \
   build-essential \
-  libglib2.0-0 \
-  libsm6 \
+  cmake \
+  git \
   libxi6 \
   libxrender1 \
-  libxrandr2 \
-  libfreetype6 \
-  libfontconfig \
-  git
+  libxtst6 \
+  python3 \
+  python3-pip \
+  wget
 
 # copy in config file
 COPY install_config.txt /
@@ -33,13 +29,18 @@ RUN echo "Downloading ${VIVADO_TAR_FILE} from ${VIVADO_TAR_HOST}" && \
   tar xzf ${VIVADO_TAR_FILE}.tar.gz && \
   /${VIVADO_TAR_FILE}/xsetup --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA --batch Install --config install_config.txt && \
   rm -rf ${VIVADO_TAR_FILE}*
-#make a Vivado user
-RUN adduser --disabled-password --gecos '' vivado
-USER vivado
-WORKDIR /home/vivado
-#add vivado tools to path
-RUN echo "source /opt/Xilinx/Vivado/2016.3/settings64.sh" >> /home/vivado/.bashrc
 
-#copy in the license file
-RUN mkdir /home/vivado/.Xilinx
-COPY Xilinx.lic /home/vivado/.Xilinx/
+# export the license server as environment variable
+ARG LICENSE_SERVER
+ENV XILINXD_LICENSE_FILE=${LICENSE_SERVER}
+
+# copy call wrapper into the container and setup symlinks for the most important commands
+COPY run_in_xilinx_env /usr/local/bin
+RUN ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/bootgen && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/vivado && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xelab && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xmd && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xsdk && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xsim && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xvhdl && \
+  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xvlog
