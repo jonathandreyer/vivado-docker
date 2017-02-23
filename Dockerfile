@@ -36,11 +36,8 @@ ENV XILINXD_LICENSE_FILE=${LICENSE_SERVER}
 
 # copy call wrapper into the container and setup symlinks for the most important commands
 COPY run_in_xilinx_env /usr/local/bin
-RUN ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/bootgen && \
-  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/vivado && \
+RUN ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/vivado && \
   ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xelab && \
-  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xmd && \
-  ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xsdk && \
   ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xsim && \
   ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xvhdl && \
   ln -s /usr/local/bin/run_in_xilinx_env /usr/local/bin/xvlog

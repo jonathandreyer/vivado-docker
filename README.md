@@ -1,6 +1,6 @@
 # vivado-docker
 
-Vivado System Edition and xsdk installed into a docker image for CI purposes.
+Vivado System Edition installed into a docker image for CI purposes.
 
 ## Image Build Instructions
 
