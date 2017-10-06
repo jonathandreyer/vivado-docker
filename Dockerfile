@@ -23,21 +23,13 @@ COPY install_config.txt /
 # download and run the install
 ARG VIVADO_TAR_HOST
 ARG VIVADO_TAR_FILE
-ARG VIVADO_VERSION
-RUN echo "Downloading ${VIVADO_TAR_FILE} from ${VIVADO_TAR_HOST}" && \
-  wget ${VIVADO_TAR_HOST}/${VIVADO_TAR_FILE}.tar.gz -q && \
+RUN echo "Downloading ${VIVADO_TAR_FILE}.tar.gz from ${VIVADO_TAR_HOST}" && \
+  wget http://${VIVADO_TAR_HOST}/${VIVADO_TAR_FILE}.tar.gz -q && \
   echo "Extracting Vivado tar file" && \
   tar xzf ${VIVADO_TAR_FILE}.tar.gz && \
   /${VIVADO_TAR_FILE}/xsetup --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA --batch Install --config install_config.txt && \
+  echo "Remove installation files" && \
   rm -rf ${VIVADO_TAR_FILE}*
-
-#make a Vivado user
-RUN adduser --disabled-password --gecos '' vivado
-USER vivado
-WORKDIR /home/vivado
-
-#add vivado tools to path
-RUN echo "source /opt/Xilinx/Vivado/${VIVADO_VERSION}/settings64.sh" >> /home/vivado/.bashrc
 
 # export the license server as environment variable
 ARG LICENSE_SERVER
